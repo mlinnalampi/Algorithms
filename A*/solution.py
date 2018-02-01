@@ -10,25 +10,24 @@ from parsing import read_instance
 
 def astar(coords, adj, start, goal):
 
-    # Nodes are numbered from 1 to n; 
+    # Nodes are numbered from 1 to n;
     # 0 is a dummy node with no edges
     n = len(coords) - 1
-    
+
     # Initialize tables
-    
+
     # prev[x]: the previous node on the
     # shortest path found so far from start to x
     prev = [i for i in range(n+1)]
-    
+
     mindist = [math.inf for i in range(n+1)]
-    
+
     # Heuristic function
-    
+
     def heur(pos1, pos2):
         x1,y1 = pos1
         x2,y2 = pos2
-        # TODO: replace with a better heuristic function
-        return min(abs(x1-x2),abs(y1-y2))
+        return min(abs(x1-x2),abs(y1-y2))+abs(abs(x1-x2)-abs(y1-y2))
 
     # Memoization: compute heuristics on demand and only once
     _heur = [-1] * (n+1)
@@ -37,32 +36,40 @@ def astar(coords, adj, start, goal):
             pos = coords[i]
             _heur[i] = heur(coords[i],coords[goal])
         return _heur[i]
-        
+
     # Initialize BFS
-        
+
     queue=PriorityQueue()
     found = False
     mindist[start]=0
-    # TODO: insert the starting position into the queue
+    queue.put((get_heur(start), start))
 
     # Main loop for processing the queue
-    
+
     while not queue.empty():
         (_,node) = queue.get()
-        # TODO: exit early if you can prove you've 
-        # found the optimal path from start to goal
-        for (next,l) in adj[node]:
-            # next: a neighbor of 'node'
-            # l: the distance from 'node' to 'next'
-            # TODO: decide if any of the node's neighbors
-            # should be explored (added to the queue).
-            pass # To be removed
-
+        if _ < mindist[goal]:
+            for (next,l) in adj[node]:
+                if mindist[node]+l < mindist[next]:
+                    mindist[next] = mindist[node] + l
+                    prev[next] = node
+                    if next != goal:
+                        queue.put((mindist[next]+get_heur(next), next))
+                    else:
+                        found=True
+    # else:
+    #     print("Oh no :(")
     # If the goal was found, unwind the path
 
     if found:
-        # TODO: Extract the solution and return it as a list of nodes [start,...,goal]
-        pass # To be removed
+        sol=[]
+        current=goal
+        # print(mindist[goal])
+        while current != start:
+            sol.append(current)
+            current=prev[current]
+        sol.append(current)
+        sol.reverse()
+        return sol
     else:
         return None
-        
